@@ -1,0 +1,74 @@
+name: Sign Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing GitHub release tag whose Windows EXE should be signed
+        required: true
+        default: v1.0.0
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  sign-and-publish:
+    runs-on: windows-latest
+    steps:
+      - name: Check signing credentials
+        shell: pwsh
+        env:
+          SIGNING_PFX_BASE64: ${{ secrets.WINDOWS_SIGNING_PFX_BASE64 }}
+          SIGNING_PFX_PASSWORD: ${{ secrets.WINDOWS_SIGNING_PFX_PASSWORD }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SIGNING_PFX_BASE64) -or [string]::IsNullOrWhiteSpace($env:SIGNING_PFX_PASSWORD)) {
+            throw 'Add WINDOWS_SIGNING_PFX_BASE64 and WINDOWS_SIGNING_PFX_PASSWORD as repository Actions secrets, then rerun this workflow.'
+          }
+          $certPath = Join-Path $env:RUNNER_TEMP 'aac-windows-publisher.pfx'
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:SIGNING_PFX_BASE64))
+          "CSC_LINK=$certPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "CSC_KEY_PASSWORD=$env:SIGNING_PFX_PASSWORD" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_tag }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build signed Windows app
+        run: |
+          npm run package
+          npx electron-builder --win portable --x64 --config scripts/windows-signing.cjs --publish never
+
+      - name: Verify publisher signature
+        shell: pwsh
+        run: |
+          $exe = Join-Path $PWD 'desktop-release/AAC-Heatmap-1.0.0-win-x64.exe'
+          $signature = Get-AuthenticodeSignature $exe
+          if ($signature.Status -ne 'Valid') {
+            throw "Windows signature check failed: $($signature.Status) — $($signature.StatusMessage)"
+          }
+          Write-Host "Signed by: $($signature.SignerCertificate.Subject)"
+
+      - name: Replace Windows download on the GitHub release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          $assets = @(Get-ChildItem 'desktop-release/AAC-Heatmap-*-win-x64.exe')
+          if ($assets.Count -ne 1) { throw "Expected one Windows release EXE; found $($assets.Count)." }
+          gh release upload $env:RELEASE_TAG $assets[0].FullName --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Upload of the signed Windows EXE failed.' }
+
+      - name: Remove temporary signing certificate
+        if: always()
+        shell: pwsh
+        run: Remove-Item (Join-Path $env:RUNNER_TEMP 'aac-windows-publisher.pfx') -Force -ErrorAction SilentlyContinue

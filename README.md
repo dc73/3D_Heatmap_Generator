@@ -65,6 +65,17 @@ The report needs one row for each hour in the selected range. A missing or inval
 
 Both formats include the AAC logo, title, day and hour labels, and summary figures.
 
+## Windows publisher signing
+
+Windows releases can be signed using a publisher-owned Authenticode `.pfx` certificate. Signing verifies the publisher and that the app has not been changed since it was signed. SmartScreen may still warn until the publisher and app build reputation; signing cannot guarantee the warning disappears immediately.
+
+To sign a Windows release, add these repository **Actions secrets** in GitHub:
+
+- `WINDOWS_SIGNING_PFX_BASE64`: base64 encoding of the publisher’s `.pfx` file.
+- `WINDOWS_SIGNING_PFX_PASSWORD`: the PFX password.
+
+Then run **Actions → Sign Windows release**, choose the existing release tag, and start the workflow. It builds and verifies the Windows app, then replaces the EXE attached to that release. Use a certificate issued to the organization or person that should appear in the Windows publisher prompt. Never commit certificates or passwords to the repository.
+
 ## Run from source
 
 The desktop release above is ready to open. To run or modify the project from source, install [Node.js](https://nodejs.org/) and run:
