@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {parseData} from './data.js';
+test('a single list creates monthly rows',()=>assert.deepEqual(parseData('1, 2, 3','months').cells,[[1],[2],[3]]));
+test('spreadsheet headers and empty cells',()=>{const d=parseData('Month\tA\tB\nJan\t2\t\nFeb\t0\t4','months');assert.deepEqual(d.cells,[[2,0],[0,4]]);assert.deepEqual(d.names,['Jan','Feb']);});
+test('rejects invalid, negative, and excessive input',()=>{for(const value of ['Mon, -2','Mon, nope','Infinity',''])assert.throws(()=>parseData(value,'days'));assert.throws(()=>parseData('1,2,3,4,5,6,7,8','days'));});
+test('zero and fractional values',()=>assert.deepEqual(parseData('Mon,0,1.5\nTue,3','days').cells,[[0,1.5],[3,0]]));
+import {parseAttendance} from './data.js';
+import {readFileSync} from 'node:fs';
+const attendanceFixture='Time,Sun,Mon,Tue,wed,Thu,Fri,Sat,Total\n'+Array.from({length:24},(_,h)=>`"${h%12||12}:00${h<12?'AM':'PM'}",${h},1,2,3,4,5,999,9999`).join('\n');
+test('attendance keeps 9 AM through 9 PM and excludes Saturday and Total',()=>{const d=parseAttendance(attendanceFixture);assert.deepEqual(d.names,['Sun','Mon','Tue','Wed','Thu','Fri']);assert.equal(d.columns,13);assert.equal(d.cells[0][0],9);assert.equal(d.cells[0][12],21);assert.equal(d.cells.flat().length,78);assert.equal(d.cells.flat().includes(999),false);});
+test('attendance validates missing hours, duplicates, and bad values',()=>{assert.throws(()=>parseAttendance(attendanceFixture.replace('"9:00AM",9,1,2,3,4,5,999,9999\n','')));assert.throws(()=>parseAttendance(attendanceFixture+'\n9:00AM,1,1,1,1,1,1,1,1'));assert.throws(()=>parseAttendance(attendanceFixture.replace('"9:00AM",9','"9:00AM",oops')));});

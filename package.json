@@ -1,0 +1,53 @@
+{
+  "name": "aac-heatmap",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test",
+    "package": "node scripts/package.mjs",
+    "desktop": "npm run package && electron .",
+    "dist:mac": "npm run package && electron-builder --mac zip --arm64 --x64 --publish never",
+    "dist:win": "npm run package && electron-builder --win portable --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "vite": "^7.1.0"
+  },
+  "description": "Academic Advancement Center attendance heatmap",
+  "author": "Academic Advancement Center",
+  "main": "desktop/main.cjs",
+  "build": {
+    "appId": "org.aac.heatmap",
+    "productName": "AAC Heatmap",
+    "directories": {
+      "output": "desktop-release"
+    },
+    "files": [
+      "desktop/main.cjs",
+      "release/Heatmap Studio.html",
+      "public/vendor/LICENSE",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.education",
+      "identity": null,
+      "icon": "public/aac_logo.png",
+      "target": [
+        "zip"
+      ]
+    },
+    "win": {
+      "icon": "public/aac_logo.png",
+      "target": [
+        "portable"
+      ],
+      "signAndEditExecutable": false
+    },
+    "artifactName": "AAC-Heatmap-${version}-${os}-${arch}.${ext}"
+  }
+}

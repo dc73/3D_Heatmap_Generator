@@ -1,0 +1,11 @@
+import {readFileSync,writeFileSync,mkdirSync} from 'node:fs';
+let html=readFileSync('index.html','utf8');
+html=html.replace('<link rel="stylesheet" href="/style.css">',()=>`<style>${readFileSync('style.css','utf8')}</style>`);
+const data=readFileSync('data.js','utf8').replace(/export /g,'');
+const chart=readFileSync('chart.js','utf8').replace(/export /g,'');
+const app=readFileSync('app.js','utf8').replace(/^import .*;\n/gm,'');
+html=html.replace('/aac_logo.png','data:image/png;base64,'+readFileSync('public/aac_logo.png').toString('base64'));
+html=html.replace('<script type="module" src="/app.js"></script>',()=>`<script>${data}\n${chart}\n${app}</script>`);
+mkdirSync('release',{recursive:true});
+writeFileSync('release/Heatmap Studio.html',html);
+console.log('Created release/Heatmap Studio.html — double-click on Mac or Windows.');
