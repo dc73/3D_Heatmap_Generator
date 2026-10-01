@@ -1,5 +1,5 @@
 export const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-export const weekdays=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+export const weekdays=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 export function parseData(text,mode){
  const labels=mode==='months'?months:weekdays;
  if(!text.trim())throw new Error('Enter some values to generate your heatmap.');
@@ -45,7 +45,8 @@ export function readCSV(text){
 }
 export function parseAttendance(text){
  const rows=readCSV(text),header=rows.shift()?.map(s=>s.toLowerCase());
- const days=['Sun','Mon','Tue','Wed','Thu','Fri'];
+ const days=['Mon','Tue','Wed','Thu','Fri','Sun'];
+ const names=['Monday','Tuesday','Wednesday','Thursday','Friday','Sunday'];
  if(!header||header[0]!=='time')throw new Error('CSV must start with a Time column followed by Sun, Mon, Tue, Wed, Thu, Fri.');
  const indices=days.map(d=>header.indexOf(d.toLowerCase()));
  if(indices.some(i=>i<0))throw new Error('CSV must include Sun, Mon, Tue, Wed, Thu, and Fri columns.');
@@ -63,5 +64,5 @@ export function parseAttendance(text){
  const selected=Array.from({length:13},(_,i)=>i+9);
  const missing=selected.filter(h=>!hours.has(h));
  if(missing.length)throw new Error(`CSV is missing hourly rows: ${missing.map(h=>`${h%12||12}:00 ${h<12?'AM':'PM'}`).join(', ')}.`);
- return {names:days,cells:days.map((_,d)=>selected.map(h=>hours.get(h)[d])),columns:13,headers:selected.map(h=>`${h%12||12}${h<12?'am':'pm'}`),attendance:true};
+ return {names,cells:days.map((_,d)=>selected.map(h=>hours.get(h)[d])),columns:13,headers:selected.map(h=>`${h%12||12}${h<12?'am':'pm'}`),attendance:true};
 }

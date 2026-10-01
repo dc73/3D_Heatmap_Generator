@@ -20,7 +20,7 @@ Unzip the Mac download and open **AAC Heatmap.app**. On Windows, double-click th
 
 Desktop packages are unsigned. macOS and Windows may show a security prompt because the apps do not have developer signing certificates.
 
-Import a CSV with `Time,Sun,Mon,Tue,Wed,Thu,Fri,Sat,Total` columns. The importer keeps 9 AM through 9 PM inclusive and Sunday through Friday. Saturday and Total are excluded; source files are unchanged. Header case is ignored. Reports must contain all 13 hourly rows. You can also type or paste month and weekday values.
+Import a CSV with `Time,Sun,Mon,Tue,Wed,Thu,Fri,Sat,Total` columns. The importer keeps 9 AM through 9 PM inclusive and Monday through Friday, then Sunday. Saturday and Total are excluded; source files are unchanged. Header case is ignored. Reports must contain all 13 hourly rows. You can also type or paste month and weekday values.
 
 Drag the 3D chart or use the rotation slider. Select a palette or pick a custom color. Exports include the logo, title, filtered totals, and hour/day labels. SVG uses vector polygons, rectangles and text; only the supplied logo is a raster image.
 

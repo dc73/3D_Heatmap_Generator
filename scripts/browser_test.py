@@ -15,6 +15,7 @@ with sync_playwright() as p:
     page.locator('#csv-file').set_input_files('/Users/dheerchhabria/Downloads/Attendance by Hour by Day of Week - Report.csv')
     page.wait_for_function("document.getElementById('total').textContent === '524'")
     assert page.locator('#chart polygon').count()==234
+    assert page.locator('#chart title').first.text_content().startswith('Monday, 9am: 5')
     original=page.locator('#chart').inner_html()
     page.locator('#rotation').fill('180')
     assert original!=page.locator('#chart').inner_html()
