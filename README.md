@@ -67,14 +67,13 @@ Both formats include the AAC logo, title, day and hour labels, and summary figur
 
 ## Windows publisher signing
 
-Windows releases can be signed using a publisher-owned Authenticode `.pfx` certificate. Signing verifies the publisher and that the app has not been changed since it was signed. SmartScreen may still warn until the publisher and app build reputation; signing cannot guarantee the warning disappears immediately.
+The Windows download is not currently signed. To publish a version that identifies its publisher in Windows, use a **Microsoft Artifact Signing Public Trust** certificate. It keeps its private key in Microsoft’s managed signing service, and the release workflow authenticates with GitHub Actions OIDC; no certificate file or signing password is stored in this repository.
 
-To sign a Windows release, add these repository **Actions secrets** in GitHub:
+Artifact Signing requires a paid Azure subscription, identity validation, and an Azure signing account and certificate profile. Its Basic plan starts at **$9.99 USD per month**. Public Trust identifies the validated legal organization or individual in the Windows publisher prompt. The AAC name alone can’t be used as a legal certificate identity unless it passes Microsoft's validation. Microsoft currently supports US organizations and US or Canadian individual developers. [Check eligibility and set up Artifact Signing](https://learn.microsoft.com/en-us/azure/artifact-signing/quickstart).
 
-- `WINDOWS_SIGNING_PFX_BASE64`: base64 encoding of the publisher’s `.pfx` file.
-- `WINDOWS_SIGNING_PFX_PASSWORD`: the PFX password.
+After setting up the Public Trust profile, configure GitHub repository secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`, plus repository variables `ARTIFACT_SIGNING_ENDPOINT`, `ARTIFACT_SIGNING_ACCOUNT`, and `ARTIFACT_SIGNING_PROFILE`. Give the federated GitHub identity only the Artifact Signing **Certificate Profile Signer** role. Then run **Actions → Sign Windows release** for the existing release tag. The workflow builds the app, signs both Windows executable files, verifies the signatures, and replaces the Windows download on that release.
 
-Then run **Actions → Sign Windows release**, choose the existing release tag, and start the workflow. It builds and verifies the Windows app, then replaces the EXE attached to that release. Use a certificate issued to the organization or person that should appear in the Windows publisher prompt. Never commit certificates or passwords to the repository.
+Signing identifies the publisher and detects changes to the signed files. It does **not** guarantee SmartScreen will immediately stop showing an unrecognized-app warning; Windows builds reputation as downloads accumulate. [Microsoft’s SmartScreen guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
 
 ## Run from source
 
