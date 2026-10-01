@@ -2,7 +2,17 @@
 
 Offline attendance heatmap with AAC branding, CSV import, 3D rotation, five color palettes and custom colors, vector SVG export, and 2400/4800/7200-pixel PNG export.
 
-## Open the app
+## Download the desktop app
+
+Get the ready-to-open app from [GitHub Releases](https://github.com/dc73/3D_Heatmap_Generator/releases/latest). No development tools are required.
+
+- [Mac — Apple Silicon](https://github.com/dc73/3D_Heatmap_Generator/releases/download/v1.0.0/AAC-Heatmap-1.0.0-mac-arm64.zip)
+- [Mac — Intel](https://github.com/dc73/3D_Heatmap_Generator/releases/download/v1.0.0/AAC-Heatmap-1.0.0-mac-x64.zip)
+- [Windows — portable EXE](https://github.com/dc73/3D_Heatmap_Generator/releases/download/v1.0.0/AAC-Heatmap-1.0.0-win-x64.exe)
+
+Unzip the Mac download and open **AAC Heatmap.app**. On Windows, double-click the downloaded EXE.
+
+## Open the app locally
 
 - Mac: unzip the matching archive in `desktop-release/` and open AAC Heatmap.app. `arm64` is for Apple Silicon, `x64` for Intel.
 - Windows: double-click the portable `.exe` in `desktop-release/`.
